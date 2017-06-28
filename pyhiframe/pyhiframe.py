@@ -1,5 +1,6 @@
 import numpy as np
 from astropy import units as u
+from astropy.cosmology import Planck15
 from scipy.constants import c
 
 
@@ -170,3 +171,33 @@ class HIConverter(object):
         nu = velo_u.to(u.MHz, equivalencies=self.v_frame).value
 
         return nu
+
+    # redshift-distance conversions
+    ###############################
+    def z2d(self, z, local=False):
+        """
+        Converts redshifts into luminosity distances
+
+        Input
+        -----
+        z : float or ndarray
+            Redshift
+
+        local : bool, optional
+            If True, assumes a local Hubble law (v = H0 * D). Otherwise,
+            assume a proper luminosity distance. Either way, the Planck 2015
+            cosmology is used.
+
+        Returns
+        -------
+        d : float or ndarray, same shape as z
+            Luminosity distance in Mpc
+
+        """
+
+        if local:
+            d = c / 1.e3 * z / Planck15.H0.value
+        else:
+            d = Planck15.luminosity_distance(z).value
+
+        return d
